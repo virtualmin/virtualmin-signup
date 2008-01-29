@@ -24,6 +24,11 @@ sub feature_label
 return $text{'feat_label'};
 }
 
+sub feature_hlink
+{
+return 'feat';
+}
+
 # feature_check()
 # Returns undef if all the needed programs for this feature are installed,
 # or an error message if not
