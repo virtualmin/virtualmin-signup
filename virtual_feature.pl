@@ -83,35 +83,41 @@ sub feature_setup
 {
 # Grant anonymous access to this module, and add this server to its allowed list
 &$virtual_server::first_print($text{'feat_setup'});
+&foreign_require("acl", "acl-lib.pl");
 &lock_file($ENV{'MINISERV_CONFIG'});
-local %miniserv;
-&get_miniserv_config(\%miniserv);
-local @anon = split(/\s+/, $miniserv{'anonymous'});
-local $found = 0;
-foreach my $a (@anon) {
-	local ($aurl, $auser) = split(/=/, $a);
-	$found++ if ($aurl eq "/$module_name");
+if (defined(&acl::setup_anonymous_access)) {
+	&acl::setup_anonymous_access("/$module_name", $module_name);
 	}
-if (!$found) {
-	# Find the first user who can use this module
-	local (%acl, $auser);
-	&read_acl(undef, \%acl);
-	if ($config{'anonuser'}) {
-		$auser = $config{'anonuser'};
+else {
+	local %miniserv;
+	&get_miniserv_config(\%miniserv);
+	local @anon = split(/\s+/, $miniserv{'anonymous'});
+	local $found = 0;
+	foreach my $a (@anon) {
+		local ($aurl, $auser) = split(/=/, $a);
+		$found++ if ($aurl eq "/$module_name");
 		}
-	else {
-		foreach my $u (keys %acl) {
-			$auser = $u
-			   if (&indexof($module_name, @{$acl{$u}}) >= 0);
+	if (!$found) {
+		# Find the first user who can use this module
+		local (%acl, $auser);
+		&read_acl(undef, \%acl);
+		if ($config{'anonuser'}) {
+			$auser = $config{'anonuser'};
 			}
-		$auser ||= "root";
+		else {
+			foreach my $u (keys %acl) {
+				$auser = $u
+				   if (&indexof($module_name, @{$acl{$u}}) >= 0);
+				}
+			$auser ||= "root";
+			}
+		push(@anon, "/$module_name=$auser");
+		$miniserv{'anonymous'} = join(" ", @anon);
+		&put_miniserv_config(\%miniserv);
+		&virtual_server::register_post_action(
+			defined(&main::restart_webmin) ?
+			   \&main::restart_webmin : \&virtual_server::restart_webmin);
 		}
-	push(@anon, "/$module_name=$auser");
-	$miniserv{'anonymous'} = join(" ", @anon);
-	&put_miniserv_config(\%miniserv);
-	&virtual_server::register_post_action(
-		defined(&main::restart_webmin) ?
-		   \&main::restart_webmin : \&virtual_server::restart_webmin);
 	}
 &unlock_file($ENV{'MINISERV_CONFIG'});
 
