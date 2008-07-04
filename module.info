@@ -2,3 +2,4 @@ desc=Virtualmin Mailbox Signup
 depends=virtual-server
 category=system
 version=1.0
+desc_nl=Virtualmin Mailbox Signup
