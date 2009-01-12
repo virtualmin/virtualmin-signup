@@ -125,8 +125,27 @@ else {
 local @doms = &list_signup_domains();
 &save_signup_domains(@doms, $_[0]->{'dom'});
 &unlock_file($signup_domains_file);
+local ($port, $proto) = &get_miniserv_port_proto();
 &$virtual_server::second_print(&text('feat_url',
-	"http://$_[0]->{'dom'}:$miniserv{'port'}/$module_name/"));
+	"$proto://$_[0]->{'dom'}:$port/$module_name/"));
+}
+
+# get_miniserv_port_proto()
+# Returns the port number and protocol (http or https) for Webmin
+sub get_miniserv_port_proto
+{
+if ($ENV{'SERVER_PORT'}) {
+	# Running under miniserv
+	return ( $ENV{'SERVER_PORT'},
+		 $ENV{'HTTPS'} eq 'ON' ? 'https' : 'http' );
+	}
+else {
+	# Get from miniserv config
+	local %miniserv;
+	&get_miniserv_config(\%miniserv);
+	return ( $miniserv{'port'},
+		 $miniserv{'ssl'} ? 'https' : 'http' );
+	}
 }
 
 # feature_modify(&domain, &olddomain)

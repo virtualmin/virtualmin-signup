@@ -16,10 +16,19 @@ if (@doms > 1) {
 	foreach $d (@doms) {
 		$dom = $d if ($d =~ /\Q$host\E/i);
 		}
-	print &ui_table_row($text{'index_dom'},
-		&ui_select("dom", $dom, [ map { [ $_ ] } @doms ]));
+	if ($config{'autodom'} && $dom) {
+		# Force one domain
+		print &ui_table_row($text{'index_dom'}, "<tt>$dom</tt>");
+		print &ui_hidden("dom", $dom),"\n";
+		}
+	else {
+		# Allow selection
+		print &ui_table_row($text{'index_dom'},
+			&ui_select("dom", $dom, [ map { [ $_ ] } @doms ]));
+		}
 	}
 else {
+	# Only one domain anyway
 	print &ui_table_row($text{'index_dom'}, "<tt>$doms[0]</tt>");
 	print &ui_hidden("dom", $doms[0]),"\n";
 	}

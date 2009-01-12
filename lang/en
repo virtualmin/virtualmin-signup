@@ -4,7 +4,7 @@ feat_label=Allow users to create mailboxes?
 feat_ealias=Mailbox signup cannot be enabled for alias servers
 feat_email=Mailbox signup cannot be enabled unless email for the server is
 feat_setup=Enabling mailbox signup for this server ..
-feat_url=.. done. New accounts can be created at $1.
+feat_url=.. done. New accounts can be created at <a href='$1'>$1</a>.
 feat_save=Updating allowed servers for mailbox signup ..
 feat_delete=Disabling mailbox signup for this server ..
 feat_ecaptcha=The Authen::Captcha Perl module needed for CAPTCHA bot detection is not installed
