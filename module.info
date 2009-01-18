@@ -1,6 +1,6 @@
 desc=Virtualmin Mailbox Signup
 depends=virtual-server
 category=system
-version=1.0
+version=1.1
 desc_nl=Virtualmin Mailbox Signup
 feedback=jcameron@webmin.com
