@@ -24,7 +24,7 @@ feat_losing=Het is nu niet langer mogelijk dat gebruikers een signup doen voor h
 feat_name=Nieuwe Mailbox Signup
 feat_save=Toegestane servers voor updaten van mailbox signup ..
 feat_setup=Mailbox signup aanzetten voor deze server ..
-feat_url=.. klaar. Nieuwe accounts kunnen worden gemaakt op $1.
+feat_url=.. klaar. Nieuwe accounts kunnen worden gemaakt op <a href='$1'>$1</a>.
 index_captcha=Vul de tekst in die hieronder getoond word
 index_dom=Domein voor nieuwe mailbox
 index_edoms=Geen domeinen zijn opgezet voor mailbox signup!
