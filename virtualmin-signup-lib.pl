@@ -2,9 +2,13 @@
 # XXX captcha
 # XXX Apache proxy from website's /signup URL
 
-do '../web-lib.pl';
+BEGIN { push(@INC, ".."); };
+eval "use WebminCore;";
+if ($@) {
+	do '../web-lib.pl';
+	do '../ui-lib.pl';
+	}
 &init_config();
-do '../ui-lib.pl';
 &foreign_require("virtual-server", "virtual-server-lib.pl");
 
 $signup_domains_file = "$module_config_directory/signup";
