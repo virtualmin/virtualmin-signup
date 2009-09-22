@@ -1,13 +1,8 @@
 # Functions for creating a new mailbox user
-# XXX captcha
 # XXX Apache proxy from website's /signup URL
 
 BEGIN { push(@INC, ".."); };
 eval "use WebminCore;";
-if ($@) {
-	do '../web-lib.pl';
-	do '../ui-lib.pl';
-	}
 &init_config();
 &foreign_require("virtual-server", "virtual-server-lib.pl");
 
