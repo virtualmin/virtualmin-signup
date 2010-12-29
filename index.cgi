@@ -7,7 +7,7 @@ require './virtualmin-signup-lib.pl';
 
 &ui_print_header(undef, $text{'index_title'}, "", undef, 0, 1);
 
-print &ui_form_start("confirm.cgi", "post");
+print &ui_form_start("confirm.cgi", "get");
 print &ui_table_start($text{'index_header'}, undef, 2);
 
 # Domain to create in
