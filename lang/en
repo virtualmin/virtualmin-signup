@@ -1,6 +1,7 @@
 feat_name=New Mailbox Signup
 feat_losing=Users will no longer be able to signup for their own mailboxes
 feat_label=Allow users to create mailboxes?
+feat_label2=User mailbox creation
 feat_ealias=Mailbox signup cannot be enabled for alias servers
 feat_email=Mailbox signup cannot be enabled unless email for the server is
 feat_setup=Enabling mailbox signup for this server ..
