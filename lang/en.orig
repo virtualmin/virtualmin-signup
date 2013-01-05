@@ -21,7 +21,7 @@ index_email=Send new mailbox details email to
 index_emaildef=The mailbox itself
 index_edoms=No domains have been setup for mailbox signup!
 index_return=new mailbox form
-index_captcha=Enter the text shown
+index_captcha=Enter the text shown below
 
 confirm_err=Failed to create mailbox
 confirm_edom=Invalid domain name

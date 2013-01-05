@@ -62,5 +62,13 @@ foreach my $f (readdir(DIR)) {
 closedir(DIR);
 }
 
+sub create_recaptcha_object
+{
+eval "use Captcha::reCAPTCHA";
+return undef if ($@);
+local $recaptcha = Captcha::reCAPTCHA->new;
+return $recaptcha;
+}
+
 1;
 

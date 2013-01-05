@@ -1,5 +1,7 @@
 anonuser=Webmin user for anonymous access,3,Automatic (root or admin)
-captcha=Use CAPTCHA image to block bots?,1,1-Yes,0-No
+captcha=Use CAPTCHA image to block bots?,4,1-Yes (internal CAPTCHA),2-Yes (reCAPTCHA),0-No
+recaptcha_pubkey=reCAPTCHA public key,3
+recaptcha_privkey=reCAPTCHA private key,3
 quota=Disk quota for new user accounts (in blocks),10,-From Virtualmin,0-Unlimited
 qquota=Qmail quota for new user accounts,10,-From Virtualmin,0-Unlimited
 shell=Shell for new user accounts,3,From Virtualmin

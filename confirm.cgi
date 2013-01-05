@@ -14,13 +14,21 @@ $d || &error($text{'confirm_edom2'});
 $in{'user'} =~ /^[a-z0-9\.\-\_]+$/ || &error($text{'confirm_euser'});
 
 # Check captcha
-if ($config{'captcha'} && $in{'confirm'}) {
+if ($config{'captcha'} == 1 && $in{'confirm'}) {
 	$captcha = &create_captcha_object();
 	if ($captcha) {
 		$c = $captcha->check_code($in{'captcha'}, $in{'md5'});
 		$c == 1 || &error($text{'confirm_ecaptcha'});
 		}
 	}
+elsif ($config{'captcha'} == 2 && $in{'confirm'}) {
+  $recaptcha = &create_recaptcha_object();
+  if ($recaptcha) {
+    $c = $recaptcha->check_answer($config{'recaptcha_privkey'},$ENV{'REMOTE_ADDR'},
+                        $in{'recaptcha_challenge_field'}, $in{'recaptcha_response_field'});
+    $c->{is_valid} || &error($text{'confirm_ecaptcha'});
+    }
+  }
 
 # Build the user object
 $user = &virtual_server::create_initial_user($d);
@@ -194,7 +202,7 @@ else {
 			&nice_size($user->{'quota'}*&virtual_server::quota_bsize($virtual_server::config{'home_quotas'})) : $text{'confirm_unlimit'});
 		}
 
-	if ($config{'captcha'}) {
+	if ($config{'captcha'} == 1) {
 		# Captcha image
 		$captcha = &create_captcha_object();
 		if ($captcha) {
@@ -205,6 +213,14 @@ else {
 			print &ui_hidden("md5", $md5),"\n";
 			}
 		}
+  elsif($config{'captcha'} == 2) {
+    $recaptcha = &create_recaptcha_object();
+    if ($recaptcha) {
+			print &ui_table_row($text{'index_captcha'},
+            $recaptcha->get_html($config{'recaptcha_pubkey'}), undef, 1);
+      }
+    }
+
 	&clear_captcha_images();
 
 	print &ui_table_end();
