@@ -1,37 +1,43 @@
 #!/usr/local/bin/perl
 # Validate inputs and tell the user what will be done
+use strict;
+use warnings;
+our (%text, %in, %config);
 
 require './virtualmin-signup-lib.pl';
 &ReadParse();
 &error_setup($text{'confirm_err'});
-$oldvm = $virtual_server::module_info{'version'} < 2.93;
+no warnings "once";
+my $oldvm = $virtual_server::module_info{'version'} < 2.93;
+use warnings "once";
 
 # Validate inputs
-@doms = &list_signup_domains();
+my @doms = &list_signup_domains();
 &indexof($in{'dom'}, @doms) >= 0 || &error($text{'confirm_edom'});
-$d = &virtual_server::get_domain_by("dom", $in{'dom'});
+my $d = &virtual_server::get_domain_by("dom", $in{'dom'});
 $d || &error($text{'confirm_edom2'});
 $in{'user'} =~ /^[a-z0-9\.\-\_]+$/ || &error($text{'confirm_euser'});
 
 # Check captcha
 if ($config{'captcha'} == 1 && $in{'confirm'}) {
-	$captcha = &create_captcha_object();
+	my $captcha = &create_captcha_object();
 	if ($captcha) {
-		$c = $captcha->check_code($in{'captcha'}, $in{'md5'});
+		my $c = $captcha->check_code($in{'captcha'}, $in{'md5'});
 		$c == 1 || &error($text{'confirm_ecaptcha'});
 		}
 	}
 elsif ($config{'captcha'} == 2 && $in{'confirm'}) {
-  $recaptcha = &create_recaptcha_object();
+  my $recaptcha = &create_recaptcha_object();
   if ($recaptcha) {
-    $c = $recaptcha->check_answer($config{'recaptcha_privkey'},$ENV{'REMOTE_ADDR'},
+    my $c = $recaptcha->check_answer($config{'recaptcha_privkey'},$ENV{'REMOTE_ADDR'},
                         $in{'recaptcha_challenge_field'}, $in{'recaptcha_response_field'});
     $c->{is_valid} || &error($text{'confirm_ecaptcha'});
     }
   }
 
 # Build the user object
-$user = &virtual_server::create_initial_user($d);
+my $user = &virtual_server::create_initial_user($d);
+my (%taken, %utaken);
 &virtual_server::build_taken(\%taken, \%utaken);
 if ($user->{'unix'} && !$user->{'webowner'}) {
 	# UID needs to be unique
@@ -45,7 +51,7 @@ $user->{'gid'} = $d->{'gid'};
 $user->{'real'} = $in{'real'};
 $user->{'plainpass'} = $in{'pass'};
 if ($oldvm) {
-	$salt = substr(time(), -2);
+	my $salt = substr(time(), -2);
 	$user->{'pass'} = crypt($in{'pass'}, $salt);
 	}
 else {
@@ -66,8 +72,8 @@ $user->{'qquota'} = $config{'qquota'} if ($config{'qquota'} ne '');
 $user->{'shell'} = $config{'shell'} if ($config{'shell'} ne '');
 
 # Check for a username clash
-@users = &virtual_server::list_domain_users($d);
-($clash) = grep { $_->{'user'} eq $in{'user'} &&
+my @users = &virtual_server::list_domain_users($d);
+my ($clash) = grep { $_->{'user'} eq $in{'user'} &&
 		  $_->{'unix'} == $user->{'unix'} } @users;
 $clash && &error($virtual_server::text{'user_eclash2'});
 
@@ -91,6 +97,7 @@ if ($user->{'unix'}) {
 	}
 
 # Check if the name is too long
+my $lerr;
 if ($user->{'unix'} && ($lerr = &virtual_server::too_long($user->{'user'}))) {
 	&error($lerr);
 	}
@@ -98,7 +105,7 @@ if ($user->{'unix'} && ($lerr = &virtual_server::too_long($user->{'user'}))) {
 # Work out home directory
 $user->{'home'} = "$d->{'home'}/$virtual_server::config{'homes_dir'}/$in{'user'}";
 if (-e $user->{'home'} && !$user->{'fixedhome'}) {
-	&error(&virtual_server::text('user_emkhome', $home));
+	&error(&virtual_server::text('user_emkhome', $user->{'home'}));
 	}
 
 # Set mail file location
@@ -110,13 +117,13 @@ if ($user->{'qmail'}) {
 
 if (defined(&virtual_server::validate_user)) {
 	# Validate user
-	$err = &virtual_server::validate_user($d, $user);
+	my $err = &virtual_server::validate_user($d, $user);
 	&error($err) if ($err);
 	}
 
 # Check limits
 if (!$oldvm) {
-	($mleft, $mreason, $mmax) = &virtual_server::count_feature(
+	my ($mleft, $mreason, $mmax) = &virtual_server::count_feature(
 					"mailboxes", $d->{'user'});
 	$mleft == 0 && &error($virtual_server::text{'user_emailboxlimit'});
 	}
@@ -181,7 +188,7 @@ else {
 	&ui_print_header(undef, $text{'confirm_title'}, "");
 
 	print &ui_form_start("confirm.cgi", "post");
-	foreach $i (keys %in) {
+	foreach my $i (keys %in) {
 		print &ui_hidden($i, $in{$i}),"\n";
 		}
 	print &ui_table_start($text{'confirm_header'}, undef, 2);
@@ -198,15 +205,15 @@ else {
 		$text{'no'} : $text{'yes'});
 	if ($virtual_server::config{'home_quotas'}) {
 		print &ui_table_row($text{'confirm_quota'},
-		   $user->{'quota'} ? 
+		   $user->{'quota'} ?
 			&nice_size($user->{'quota'}*&virtual_server::quota_bsize($virtual_server::config{'home_quotas'})) : $text{'confirm_unlimit'});
 		}
 
 	if ($config{'captcha'} == 1) {
 		# Captcha image
-		$captcha = &create_captcha_object();
+		my $captcha = &create_captcha_object();
 		if ($captcha) {
-			$md5 = $captcha->generate_code(6);
+			my $md5 = $captcha->generate_code(6);
 			print &ui_table_row($text{'index_captcha'},
 				&ui_textbox("captcha", undef, 6)."<br>".
 				"<img src=captcha.cgi?md5=$md5>");
@@ -214,7 +221,7 @@ else {
 			}
 		}
   elsif($config{'captcha'} == 2) {
-    $recaptcha = &create_recaptcha_object();
+    my $recaptcha = &create_recaptcha_object();
     if ($recaptcha) {
 			print &ui_table_row($text{'index_captcha'},
             $recaptcha->get_html($config{'recaptcha_pubkey'}), undef, 1);
@@ -228,4 +235,3 @@ else {
 
 	&ui_print_footer("", $text{'index_return'});
 	}
-

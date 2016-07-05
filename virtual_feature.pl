@@ -1,4 +1,11 @@
 # Defines functions for this feature
+use strict;
+use warnings;
+our (%text, %config);
+our $module_name;
+our $captcha;
+our %miniserv;
+our $signup_domains_file;
 
 require 'virtualmin-signup-lib.pl';
 
@@ -21,7 +28,7 @@ return $text{'feat_losing'};
 # editing form
 sub feature_label
 {
-local ($edit) = @_;
+my ($edit) = @_;
 return $edit ? $text{'feat_label2'} : $text{'feat_label'};
 }
 
@@ -36,7 +43,7 @@ return 'feat';
 sub feature_check
 {
 if ($config{'captcha'}) {
-	local $captcha = &create_captcha_object();
+	my $captcha = &create_captcha_object();
 	if (!$captcha) {
 		return $text{'feat_ecaptcha'};
 		}
@@ -52,7 +59,7 @@ sub feature_depends
 if ($_[0]->{'alias'}) {
 	return $text{'feat_ealias'};
 	}
-elsif (!$_[0]->{'mail'} && 
+elsif (!$_[0]->{'mail'} &&
        (!defined(&virtual_server::can_users_without_mail) ||
 	!&virtual_server::can_users_without_mail($_[0]))) {
 	return $text{'feat_email'};
@@ -90,17 +97,17 @@ if (defined(&acl::setup_anonymous_access)) {
 	&acl::setup_anonymous_access("/$module_name", $module_name);
 	}
 else {
-	local %miniserv;
+	my %miniserv;
 	&get_miniserv_config(\%miniserv);
-	local @anon = split(/\s+/, $miniserv{'anonymous'});
-	local $found = 0;
+	my @anon = split(/\s+/, $miniserv{'anonymous'});
+	my $found = 0;
 	foreach my $a (@anon) {
-		local ($aurl, $auser) = split(/=/, $a);
+		my ($aurl, $auser) = split(/=/, $a);
 		$found++ if ($aurl eq "/$module_name");
 		}
 	if (!$found) {
 		# Find the first user who can use this module
-		local (%acl, $auser);
+		my (%acl, $auser);
 		&read_acl(undef, \%acl);
 		if ($config{'anonuser'}) {
 			$auser = $config{'anonuser'};
@@ -123,10 +130,10 @@ else {
 &unlock_file($ENV{'MINISERV_CONFIG'});
 
 &lock_file($signup_domains_file);
-local @doms = &list_signup_domains();
+my @doms = &list_signup_domains();
 &save_signup_domains(@doms, $_[0]->{'dom'});
 &unlock_file($signup_domains_file);
-local ($port, $proto) = &get_miniserv_port_proto();
+my ($port, $proto) = &get_miniserv_port_proto();
 &$virtual_server::second_print(&text('feat_url',
 	"$proto://$_[0]->{'dom'}:$port/$module_name/"));
 }
@@ -142,7 +149,7 @@ if ($ENV{'SERVER_PORT'}) {
 	}
 else {
 	# Get from miniserv config
-	local %miniserv;
+	my %miniserv;
 	&get_miniserv_config(\%miniserv);
 	return ( $miniserv{'port'},
 		 $miniserv{'ssl'} ? 'https' : 'http' );
@@ -157,7 +164,7 @@ if ($_[0]->{'dom'} ne $_[1]->{'dom'}) {
 	# Update domain in allowed list
 	&$virtual_server::first_print($text{'feat_save'});
 	&lock_file($signup_domains_file);
-	local @doms = &list_signup_domains();
+	my @doms = &list_signup_domains();
 	foreach my $l (@doms) {
 		$l = $_[0]->{'dom'} if ($l eq $_[1]->{'dom'});
 		}
@@ -173,7 +180,7 @@ sub feature_delete
 {
 &$virtual_server::first_print($text{'feat_delete'});
 &lock_file($signup_domains_file);
-local @doms = &list_signup_domains();
+my @doms = &list_signup_domains();
 @doms = grep { $_ ne $_[0]->{'dom'} } @doms;
 &save_signup_domains(@doms);
 &unlock_file($signup_domains_file);
@@ -203,4 +210,3 @@ return 0;
 }
 
 1;
-

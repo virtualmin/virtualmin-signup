@@ -1,8 +1,11 @@
 #!/usr/local/bin/perl
 # Show a page for entering details of a new user account
+use strict;
+use warnings;
+our (%text, %in, %config);
 
 require './virtualmin-signup-lib.pl';
-@doms = &list_signup_domains();
+my @doms = &list_signup_domains();
 @doms || &error($text{'index_edoms'});
 
 &ui_print_header(undef, $text{'index_title'}, "", undef, 0, 1);
@@ -12,8 +15,9 @@ print &ui_table_start($text{'index_header'}, undef, 2);
 
 # Domain to create in
 if (@doms > 1) {
-	$host = $ENV{'HTTP_HOST'};
-	foreach $d (@doms) {
+	my $host = $ENV{'HTTP_HOST'};
+	my $dom;
+	foreach my $d (@doms) {
 		$dom = $d if ($d =~ /\Q$host\E/i);
 		}
 	if ($config{'autodom'} && $dom) {
@@ -50,4 +54,3 @@ print &ui_table_end();
 print &ui_form_end([ [ "signup", $text{'index_signup'} ] ]);
 
 &ui_print_footer();
-
