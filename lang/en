@@ -8,7 +8,7 @@ feat_setup=Enabling mailbox signup for this server ..
 feat_url=.. done. New accounts can be created at <a href='$1'>$1</a>.
 feat_save=Updating allowed servers for mailbox signup ..
 feat_delete=Disabling mailbox signup for this server ..
-feat_ecaptcha=The Authen::Captcha Perl module needed for CAPTCHA bot detection is not installed
+feat_ecaptcha=The <tt>Authen::Captcha</tt> Perl module needed for CAPTCHA bot detection is not installed
 
 index_title=Virtualmin Mailbox Signup
 index_header=New mailbox details
@@ -21,7 +21,7 @@ index_email=Send new mailbox details email to
 index_emaildef=The mailbox itself
 index_edoms=No domains have been setup for mailbox signup!
 index_return=new mailbox form
-index_captcha=Enter the text shown
+index_captcha=Enter the text shown below
 
 confirm_err=Failed to create mailbox
 confirm_edom=Invalid domain name
